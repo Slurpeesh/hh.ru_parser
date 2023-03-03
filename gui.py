@@ -136,7 +136,7 @@ class ParserApp:
         self.waiting.grid(row=3, column=0, columnspan=2, pady=5, sticky="we")
         self.waiting.grid_remove()
         # recreate progress bar
-        self.progress_bar = ttk.Progressbar(self.root, orient=tk.HORIZONTAL)
+        self.progress_bar = ttk.Progressbar(self.root, orient=tk.HORIZONTAL, length=400)
         self.progress_bar.grid(row=4, column=0, columnspan=2, pady=5)
         self.progress_bar.grid_remove()
 
