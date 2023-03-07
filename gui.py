@@ -1,4 +1,5 @@
 import time
+import threading
 import tkinter as tk
 from tkinter import ttk
 import matplotlib
@@ -37,7 +38,7 @@ class ParserApp:
         self.string_entry = tk.StringVar()
         self.search_request = None
         self.query_entry = tk.Entry(self.root, width=25, borderwidth=1, relief="solid", textvariable=self.string_entry)
-        accept_button = tk.Button(self.root, text="Search", command=self.command)
+        self.accept_button = tk.Button(self.root, text="Search", command=threading.Thread(target=self.command).start)
         self.waiting = tk.Label(self.root, text="Please, wait, it may take up to a few minutes ...", font=("Arial", 14))
         self.progress_bar = ttk.Progressbar(self.root, orient=tk.HORIZONTAL, length=400)
         self.output = tk.Frame(self.root, borderwidth=1, relief="solid")
@@ -48,7 +49,7 @@ class ParserApp:
         header.grid(row=0, column=0, columnspan=2, stick="we")
         input_label.grid(row=1, column=0, pady=5, stick="e")
         self.query_entry.grid(row=1, column=1, pady=5, stick="w")
-        accept_button.grid(row=2, column=0, columnspan=2, pady=5)
+        self.accept_button.grid(row=2, column=0, columnspan=2, pady=5)
         self.waiting.grid(row=3, column=0, columnspan=2, pady=5, sticky="we")
         self.waiting.grid_remove()
         self.progress_bar.grid(row=4, column=0, columnspan=2, pady=5)
@@ -120,6 +121,8 @@ class ParserApp:
         self.answer.config(state="disabled")
         self.create_diagrams(results)
         self.output.grid(row=4, column=0, columnspan=2, sticky="wens")
+        # creating a new Thread object to make multithreading working correctly
+        self.accept_button.config(command=threading.Thread(target=self.command).start)
 
     # method that shows waiting message
     def create_waiting(self):
