@@ -55,10 +55,10 @@ class ParserApp:
         self.progress_bar.grid(row=4, column=0, columnspan=2, pady=5)
         self.progress_bar.grid_remove()
         # setting minimum size for each column
-        self.root.grid_columnconfigure(0, minsize=400)
-        self.root.grid_columnconfigure(1, minsize=400)
-        self.output.grid_columnconfigure(0, minsize=777)
-        self.output.grid_columnconfigure(1, minsize=23)
+        self.root.grid_columnconfigure(0, weight=1, minsize=400)
+        self.root.grid_columnconfigure(1, weight=1, minsize=400)
+        self.output.grid_columnconfigure(0, weight=777, minsize=777)
+        self.output.grid_columnconfigure(1, weight=23, minsize=23)
 
     # method that shows root window
     def show(self):
@@ -161,8 +161,8 @@ class ParserApp:
             self.output = tk.Frame(self.root)
             self.answer = tk.Text(self.output, height=4, wrap="word", state="disabled", width=30)
             self.result_label = None
-            self.output.grid_columnconfigure(0, minsize=777)
-            self.output.grid_columnconfigure(1, minsize=23)
+            self.output.grid_columnconfigure(0, weight=777, minsize=777)
+            self.output.grid_columnconfigure(1, weight=23, minsize=23)
 
 
 def test():
