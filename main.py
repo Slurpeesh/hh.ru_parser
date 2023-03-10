@@ -22,6 +22,14 @@ def summary_push(elem):
         summary_dict[elem] = 1
 
 
+# function that deletes html documents if exists
+def delete_html_files():
+    if os.path.isfile("page.html"):
+        os.remove("page.html")
+    if os.path.isfile("vacancy.html"):
+        os.remove("vacancy.html")
+
+
 # clear log if exist
 if os.path.isfile("log.log"):
     os.remove("log.log")
@@ -44,6 +52,8 @@ def get_statistics():
     global summary_dict
     # deleting output frame if exists
     gui_app.clear_output()
+    # deleting nothing_found_text if exists
+    gui_app.clear_nothing_found_text()
     # creating waiting message
     gui_app.create_waiting()
     # getting response
@@ -54,9 +64,9 @@ def get_statistics():
     src = response.text
 
     # saving html into file
-    with open("page.html", 'w') as file:
+    with open("page.html", 'w', encoding="utf-8") as file:
         file.write(src)
-    with open("page.html") as file:
+    with open("page.html", encoding="utf-8") as file:
         src = file.read()
 
     soup = BeautifulSoup(src, "lxml")
@@ -67,6 +77,18 @@ def get_statistics():
         last_page = pager.findChildren('span', recursive=False)[-1]
         last_page_num = int(last_page.find('a').text)
     except AttributeError:
+        # checking if there are any vacancies
+        header = soup.find('h1', class_="bloko-header-section-3")
+        if (header is not None) and ("ничего не найдено" in header.text):
+            gui_app.destroy_waiting()
+            gui_app.nothing_found_text()
+            # deleting html files
+            delete_html_files()
+            # logging info
+            logger.info('Total num of pages: 0')
+            logger.info('Pages to be considered: 0')
+            logger.info(f'Result: {summary_dict}')
+            return
         last_page_num = 1
 
     # last pages are usually irrelevant, so only 2/3 of all pages will be considered
@@ -90,9 +112,9 @@ def get_statistics():
         if vacancies is None:
             response = requests.get(url, headers=headers)
             src = response.text
-            with open("page.html", 'w') as file:
+            with open("page.html", 'w', encoding="utf-8") as file:
                 file.write(src)
-            with open("page.html") as file:
+            with open("page.html", encoding="utf-8") as file:
                 src = file.read()
             soup = BeautifulSoup(src, "lxml")
             vacancies = soup.findAll('a', class_="serp-item__title")
@@ -110,9 +132,9 @@ def get_statistics():
             src = response.text
 
             # saving html into file
-            with open("vacancy.html", 'w') as file:
+            with open("vacancy.html", 'w', encoding="utf-8") as file:
                 file.write(src)
-            with open("vacancy.html") as file:
+            with open("vacancy.html", encoding="utf-8") as file:
                 src = file.read()
 
             soup = BeautifulSoup(src, "lxml")
@@ -125,16 +147,17 @@ def get_statistics():
             time.sleep(1)
 
     # deleting html files
-    if os.path.isfile("page.html") and os.path.isfile("vacancy.html"):
-        os.remove("page.html")
-        os.remove("vacancy.html")
+    delete_html_files()
     # preparing data to user
     gui.remove_deviations(summary_dict, 2)
     summary_dict = dict(sorted(summary_dict.items(), key=lambda item: item[1], reverse=True))
     # deleting waiting message
     gui_app.destroy_waiting()
-    # showing output frame with summary_dict info
-    gui_app.show_results(summary_dict)
+    # showing output frame with summary_dict info if there are enough data
+    if summary_dict:
+        gui_app.show_results(summary_dict)
+    else:
+        gui_app.nothing_found_text()
     # adding summary_dict info into log
     logger.info(f'Result: {summary_dict}')
     # summary_dict should be reset

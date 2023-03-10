@@ -44,6 +44,7 @@ class ParserApp:
         self.output = tk.Frame(self.root, borderwidth=1, relief="solid")
         self.answer = tk.Text(self.output, height=4, wrap="word", state="disabled", width=45)
         self.result_label = None
+        self.nothing_found_label = tk.Label(self.root, text="No vacancies were found", font=("Arial", 14))
 
         # packing elements
         header.grid(row=0, column=0, columnspan=2, stick="we")
@@ -142,6 +143,18 @@ class ParserApp:
         self.progress_bar = ttk.Progressbar(self.root, orient=tk.HORIZONTAL, length=400)
         self.progress_bar.grid(row=4, column=0, columnspan=2, pady=5)
         self.progress_bar.grid_remove()
+
+    # method that shows that there are no vacancies
+    def nothing_found_text(self):
+        self.nothing_found_label.grid(row=4, column=0, columnspan=2, sticky="we")
+
+    # method that destroys nothing_found_text if exists
+    def clear_nothing_found_text(self):
+        if self.nothing_found_label.winfo_exists():
+            self.nothing_found_label.destroy()
+            self.nothing_found_label = tk.Label(self.root, text="No or too few vacancies were found", font=("Arial", 14))
+            # creating a new Thread object to make multithreading working correctly
+            self.accept_button.config(command=threading.Thread(target=self.command).start)
 
     # method that sets maximum value of progress bar (times 10 for smooth animation)
     def set_max_value_progress_bar(self, value):
