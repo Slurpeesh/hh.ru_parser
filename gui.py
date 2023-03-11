@@ -37,8 +37,16 @@ class ParserApp:
         input_label = tk.Label(self.root, text="Input query text: ", font=("Arial", 14))
         self.string_entry = tk.StringVar()
         self.search_request = None
-        self.query_entry = tk.Entry(self.root, width=25, borderwidth=1, relief="solid", textvariable=self.string_entry)
-        self.accept_button = tk.Button(self.root, text="Search", command=threading.Thread(target=self.command).start)
+        self.query_entry = tk.Entry(self.root, width=25, borderwidth=1, relief="solid",
+                                    textvariable=self.string_entry, highlightthickness=0.5)
+        self.query_entry.bind("<Return>", self.enter_press)
+        self.query_entry.bind("<FocusIn>", self.on_focus_in_entry)
+        self.query_entry.bind("<FocusOut>", self.on_focus_out_entry)
+        self.accept_button = tk.Button(self.root, text="Search", activebackground='#f59e9e',
+                                       command=threading.Thread(target=self.command).start)
+        # hover event on button
+        self.accept_button.bind("<Enter>", self.on_enter_button)
+        self.accept_button.bind("<Leave>", self.on_leave_button)
         self.waiting = tk.Label(self.root, text="Please, wait, it may take up to a few minutes ...", font=("Arial", 14))
         self.progress_bar = ttk.Progressbar(self.root, orient=tk.HORIZONTAL, length=400)
         self.output = tk.Frame(self.root, borderwidth=1, relief="solid")
@@ -60,10 +68,38 @@ class ParserApp:
         self.root.grid_columnconfigure(1, weight=1, minsize=400)
         self.output.grid_columnconfigure(0, weight=777, minsize=777)
         self.output.grid_columnconfigure(1, weight=23, minsize=23)
+        # focus entry element
+        self.query_entry.focus_set()
 
     # method that shows root window
     def show(self):
         self.root.mainloop()
+
+    # method that allows user to confirm query entry by pressing "Enter"
+    def enter_press(self, event):
+        threading.Thread(target=self.command).start()
+
+    # methods that change background color of a button when hovering over it
+    def on_enter_button(self, event):
+        self.accept_button.config(background='#e9c5c5')
+
+    def on_leave_button(self, event):
+        self.accept_button.config(background='SystemButtonFace')
+
+    # methods that highlight border of entry when focusing it
+    def on_focus_in_entry(self, event):
+        self.query_entry.config(highlightthickness=0.5, highlightbackground='#a00000', highlightcolor='#a00000')
+
+    def on_focus_out_entry(self, event):
+        self.query_entry.config(highlightthickness=0, highlightbackground='black', highlightcolor='black')
+
+    def disable_input(self):
+        self.accept_button.config(state=tk.DISABLED)
+        self.query_entry.unbind("<Return>")
+
+    def enable_input(self):
+        self.accept_button.config(state=tk.NORMAL)
+        self.query_entry.bind("<Return>", self.enter_press)
 
     # method that creates histogram
     def create_diagrams(self, data):
@@ -87,19 +123,19 @@ class ParserApp:
 
         # preparing histogram to user
         plot.barh(list(modified_data.keys()), list(modified_data.values()), color='darkred')
-        # Remove axes splines
+        # remove axes splines
         for s in ['top', 'bottom', 'left', 'right']:
             plot.spines[s].set_visible(False)
 
-        # Remove x, y Ticks
+        # remove x, y Ticks
         plot.xaxis.set_ticks_position('none')
         plot.yaxis.set_ticks_position('none')
 
-        # Add x, y gridlines
+        # add x, y gridlines
         plot.grid(color='grey', linestyle='-.', linewidth=0.5, alpha=0.3)
-        # Show top values
+        # show top values
         plot.invert_yaxis()
-        # Add Plot Title
+        # add Plot Title
         plot.set_title("Occurrences of key skills in vacancies", loc='left')
 
     # method that shows output text
@@ -124,6 +160,8 @@ class ParserApp:
         self.output.grid(row=4, column=0, columnspan=2, sticky="wens")
         # creating a new Thread object to make multithreading working correctly
         self.accept_button.config(command=threading.Thread(target=self.command).start)
+        # focus entry element
+        self.query_entry.focus_force()
 
     # method that shows waiting message
     def create_waiting(self):
@@ -152,7 +190,8 @@ class ParserApp:
     def clear_nothing_found_text(self):
         if self.nothing_found_label.winfo_exists():
             self.nothing_found_label.destroy()
-            self.nothing_found_label = tk.Label(self.root, text="No or too few vacancies were found", font=("Arial", 14))
+            self.nothing_found_label = tk.Label(self.root,
+                                                text="No or too few vacancies were found", font=("Arial", 14))
             # creating a new Thread object to make multithreading working correctly
             self.accept_button.config(command=threading.Thread(target=self.command).start)
 
@@ -179,6 +218,7 @@ class ParserApp:
 
 
 def test():
+    app.disable_input()
     app.clear_output()
     app.create_waiting()
     time.sleep(2)
@@ -186,6 +226,7 @@ def test():
     text = {'Test1': 164, 'Test2': 80, 'Test3': 77, 'Test4': 61, 'Test5': 45, 'Test6': 34,
             'Test7': 29, 'Test8': 24, 'Test9': 18, 'Test10': 17, 'Test11': 15}
     app.show_results(text)
+    app.enable_input()
 
 
 # main code block

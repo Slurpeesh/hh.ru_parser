@@ -50,6 +50,8 @@ logger.add("log.log", format="{time}   | {level} |   {message}", level="DEBUG")
 @logger.catch
 def get_statistics():
     global summary_dict
+    # disabling input
+    gui_app.disable_input()
     # deleting output frame if exists
     gui_app.clear_output()
     # deleting nothing_found_text if exists
@@ -88,6 +90,8 @@ def get_statistics():
             logger.info('Total num of pages: 0')
             logger.info('Pages to be considered: 0')
             logger.info(f'Result: {summary_dict}')
+            # enabling input
+            gui_app.enable_input()
             return
         last_page_num = 1
 
@@ -162,6 +166,8 @@ def get_statistics():
     logger.info(f'Result: {summary_dict}')
     # summary_dict should be reset
     summary_dict = {}
+    # enabling input
+    gui_app.enable_input()
 
 
 # showing gui window
