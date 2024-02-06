@@ -30,6 +30,22 @@ def delete_html_files():
         os.remove("vacancy.html")
 
 
+# function that checks if there are any vacancies
+def check_vacancies(block, search_request):
+    if x := (block is not None) and (("ничего не найдено" in block.text) or not (search_request in block.text)):
+        gui_app.destroy_waiting()
+        gui_app.nothing_found_text()
+        # deleting html files
+        delete_html_files()
+        # logging info
+        logger.info('Total num of pages: 0')
+        logger.info('Pages to be considered: 0')
+        logger.info(f'Result: {summary_dict}')
+        # enabling input
+        gui_app.enable_input()
+    return x
+
+
 # clear log if exist
 if os.path.isfile("log.log"):
     os.remove("log.log")
@@ -72,7 +88,7 @@ def get_statistics():
         src = file.read()
 
     soup = BeautifulSoup(src, "lxml")
-
+    header = soup.find('h1')
     # getting a number of amount of all pages
     try:
         pager = soup.find(class_="pager")
@@ -80,20 +96,15 @@ def get_statistics():
         last_page_num = int(last_page.find('a').text)
     except AttributeError:
         # checking if there are any vacancies
-        header = soup.find('h1', class_="bloko-header-section-3")
-        if (header is not None) and ("ничего не найдено" in header.text):
-            gui_app.destroy_waiting()
-            gui_app.nothing_found_text()
-            # deleting html files
-            delete_html_files()
-            # logging info
-            logger.info('Total num of pages: 0')
-            logger.info('Pages to be considered: 0')
-            logger.info(f'Result: {summary_dict}')
-            # enabling input
-            gui_app.enable_input()
+        hint = check_vacancies(header, search_request)
+        if hint:
             return
         last_page_num = 1
+
+    # hh.ru can correct our request, we are handling this case
+    hint = check_vacancies(header, search_request)
+    if hint:
+        return
 
     # last pages are usually irrelevant, so only 2/3 of all pages will be considered
     num_of_pages = get_fraction(last_page_num, 2 / 3)
@@ -102,9 +113,16 @@ def get_statistics():
 
     # considering progress bar, 20 vacancies on each page
     vacancies = None
+    print(f'Last page: {last_page_num}')
     if last_page_num == 1:
-        vacancies = soup.findAll('a', class_="serp-item__title")
+        vacancy_blocks = soup.findAll('div', class_="serp-item")
+        vacancies = []
+        for vacancy_block in vacancy_blocks:
+            vacancy = vacancy_block.find('a', class_="bloko-link")
+            vacancies.append(vacancy)
         num_of_vacancies = len(vacancies)
+        if num_of_vacancies > 20:
+            num_of_vacancies = 20
         gui_app.set_max_value_progress_bar(num_of_vacancies)
     else:
         gui_app.set_max_value_progress_bar(20 * num_of_pages)
@@ -113,16 +131,19 @@ def get_statistics():
     # going through all pages
     for cur_page in range(num_of_pages):
         url = f'https://hh.ru/search/vacancy?text={search_request}&area=2&page={cur_page}'
-        if vacancies is None:
-            response = requests.get(url, headers=headers)
-            src = response.text
-            with open("page.html", 'w', encoding="utf-8") as file:
-                file.write(src)
-            with open("page.html", encoding="utf-8") as file:
-                src = file.read()
-            soup = BeautifulSoup(src, "lxml")
-            vacancies = soup.findAll('a', class_="serp-item__title")
-
+        response = requests.get(url, headers=headers)
+        src = response.text
+        with open("page.html", 'w', encoding="utf-8") as file:
+            file.write(src)
+        with open("page.html", encoding="utf-8") as file:
+            src = file.read()
+        soup = BeautifulSoup(src, "lxml")
+        vacancy_blocks = soup.findAll('div', class_="serp-item")
+        print(len(vacancy_blocks))
+        vacancies = []
+        for vacancy_block in vacancy_blocks:
+            vacancy = vacancy_block.find('a', class_="bloko-link")
+            vacancies.append(vacancy)
         logger.info(f'Currently on page {cur_page + 1}: {response.url}')
         vacancies_url_list = []
         for vacancy in vacancies:

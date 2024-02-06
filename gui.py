@@ -181,6 +181,7 @@ class ParserApp:
         self.progress_bar = ttk.Progressbar(self.root, orient=tk.HORIZONTAL, length=400)
         self.progress_bar.grid(row=4, column=0, columnspan=2, pady=5)
         self.progress_bar.grid_remove()
+        self.progress_bar.grid_remove()
 
     # method that shows that there are no vacancies
     def nothing_found_text(self):
