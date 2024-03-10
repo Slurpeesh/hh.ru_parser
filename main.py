@@ -65,13 +65,24 @@ logger.add("log.log", format="{time}   | {level} |   {message}", level="DEBUG")
 # main function of parsing algorithm
 @logger.catch
 def get_statistics():
+    # deleting no_internet_text if exists
+    gui_app.clear_no_internet_text()
+    # deleting nothing_found_text if exists
+    gui_app.clear_nothing_found_text()
+
+    # checking Internet connection
+    try:
+        requests.get('http://ya.ru')
+    except requests.exceptions.ConnectionError:
+        print("ConnectionError")
+        gui_app.no_internet_text()
+        return
+
     global summary_dict
     # disabling input
     gui_app.disable_input()
     # deleting output frame if exists
     gui_app.clear_output()
-    # deleting nothing_found_text if exists
-    gui_app.clear_nothing_found_text()
     # creating waiting message
     gui_app.create_waiting()
     # getting response

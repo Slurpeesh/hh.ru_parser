@@ -53,6 +53,7 @@ class ParserApp:
         self.answer = tk.Text(self.output, height=4, wrap="word", state="disabled", width=45)
         self.result_label = None
         self.nothing_found_label = tk.Label(self.root, text="No vacancies were found", font=("Arial", 14))
+        self.no_internet_label = tk.Label(self.root, text="No internet connection", font=("Arial", 14))
 
         # packing elements
         header.grid(row=0, column=0, columnspan=2, stick="we")
@@ -187,12 +188,23 @@ class ParserApp:
     def nothing_found_text(self):
         self.nothing_found_label.grid(row=4, column=0, columnspan=2, sticky="we")
 
+    def no_internet_text(self):
+        self.no_internet_label.grid(row=4, column=0, columnspan=2, sticky="we")
+
     # method that destroys nothing_found_text if exists
     def clear_nothing_found_text(self):
         if self.nothing_found_label.winfo_exists():
             self.nothing_found_label.destroy()
             self.nothing_found_label = tk.Label(self.root,
                                                 text="No or too few vacancies were found", font=("Arial", 14))
+            # creating a new Thread object to make multithreading working correctly
+            self.accept_button.config(command=threading.Thread(target=self.command).start)
+
+    def clear_no_internet_text(self):
+        if self.no_internet_label.winfo_exists():
+            self.no_internet_label.destroy()
+            self.no_internet_label = tk.Label(self.root,
+                                                text="No internet connection", font=("Arial", 14))
             # creating a new Thread object to make multithreading working correctly
             self.accept_button.config(command=threading.Thread(target=self.command).start)
 
