@@ -52,11 +52,6 @@ if os.path.isfile("log.log"):
 
 # initial variables
 summary_dict = {}
-user_agent = UserAgent()
-headers = {
-    "Accept": "*/*",
-    "User-Agent": user_agent.random
-}
 
 # preparing logging
 logger.add("log.log", format="{time}   | {level} |   {message}", level="DEBUG")
@@ -79,12 +74,21 @@ def get_statistics():
         return
 
     global summary_dict
+
     # disabling input
     gui_app.disable_input()
     # deleting output frame if exists
     gui_app.clear_output()
     # creating waiting message
     gui_app.create_waiting()
+
+    # custom user agent for parsing
+    user_agent = UserAgent()
+    headers = {
+        "Accept": "*/*",
+        "User-Agent": user_agent.random
+    }
+
     # getting response
     search_request = gui_app.string_entry.get()
     logger.info(f'Search request: {search_request}')
