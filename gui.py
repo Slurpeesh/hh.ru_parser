@@ -34,7 +34,7 @@ class ParserApp:
         self.command = command
         # creating elements in window
         header = tk.Label(self.root, text="hh.ru parser", font=("Arial", 20, "bold"))
-        input_label = tk.Label(self.root, text="Input query text: ", font=("Arial", 14))
+        input_label = tk.Label(self.root, text="Введите текст запроса: ", font=("Arial", 14))
         self.string_entry = tk.StringVar()
         self.search_request = None
         self.query_entry = tk.Entry(self.root, width=25, borderwidth=1, relief="solid",
@@ -42,18 +42,18 @@ class ParserApp:
         self.query_entry.bind("<Return>", self.enter_press)
         self.query_entry.bind("<FocusIn>", self.on_focus_in_entry)
         self.query_entry.bind("<FocusOut>", self.on_focus_out_entry)
-        self.accept_button = tk.Button(self.root, text="Search", activebackground='#f59e9e',
+        self.accept_button = tk.Button(self.root, text="Поиск", activebackground='#f59e9e',
                                        command=threading.Thread(target=self.command).start)
         # hover event on button
         self.accept_button.bind("<Enter>", self.on_enter_button)
         self.accept_button.bind("<Leave>", self.on_leave_button)
-        self.waiting = tk.Label(self.root, text="Please, wait, it may take up to a few minutes ...", font=("Arial", 14))
+        self.waiting = tk.Label(self.root, text="Пожалуйста, подождите, это может занять несколько минут...", font=("Arial", 14))
         self.progress_bar = ttk.Progressbar(self.root, orient=tk.HORIZONTAL, length=400)
         self.output = tk.Frame(self.root, borderwidth=1, relief="solid")
         self.answer = tk.Text(self.output, height=4, wrap="word", state="disabled", width=45)
         self.result_label = None
-        self.nothing_found_label = tk.Label(self.root, text="No vacancies were found", font=("Arial", 14))
-        self.no_internet_label = tk.Label(self.root, text="No internet connection", font=("Arial", 14))
+        self.nothing_found_label = tk.Label(self.root, text="Вакансии не найдены", font=("Arial", 14))
+        self.no_internet_label = tk.Label(self.root, text="Нет подключения к Интернету", font=("Arial", 14))
 
         # packing elements
         header.grid(row=0, column=0, columnspan=2, stick="we")
@@ -137,7 +137,7 @@ class ParserApp:
         # show top values
         plot.invert_yaxis()
         # add Plot Title
-        plot.set_title("Occurrences of key skills in vacancies", loc='left')
+        plot.set_title("Число ключевых навыков в вакансиях", loc='left')
 
     # method that shows output text
     def show_results(self, results):
@@ -175,7 +175,7 @@ class ParserApp:
         self.waiting.destroy()
         self.progress_bar.destroy()
         # recreate waiting label
-        self.waiting = tk.Label(self.root, text="Please, wait, it may take up to a few minutes ...", font=("Arial", 14))
+        self.waiting = tk.Label(self.root, text="Пожалуйста, подождите, это может занять несколько минут...", font=("Arial", 14))
         self.waiting.grid(row=3, column=0, columnspan=2, pady=5, sticky="we")
         self.waiting.grid_remove()
         # recreate progress bar
@@ -196,7 +196,7 @@ class ParserApp:
         if self.nothing_found_label.winfo_exists():
             self.nothing_found_label.destroy()
             self.nothing_found_label = tk.Label(self.root,
-                                                text="No or too few vacancies were found", font=("Arial", 14))
+                                                text="Не найдено ни одной или слишком мало вакансий", font=("Arial", 14))
             # creating a new Thread object to make multithreading working correctly
             self.accept_button.config(command=threading.Thread(target=self.command).start)
 
@@ -204,7 +204,7 @@ class ParserApp:
         if self.no_internet_label.winfo_exists():
             self.no_internet_label.destroy()
             self.no_internet_label = tk.Label(self.root,
-                                                text="No internet connection", font=("Arial", 14))
+                                                text="Нет подключения к Интернету", font=("Arial", 14))
             # creating a new Thread object to make multithreading working correctly
             self.accept_button.config(command=threading.Thread(target=self.command).start)
 

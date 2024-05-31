@@ -32,7 +32,7 @@ def delete_html_files():
 
 # function that checks if there are any vacancies
 def check_vacancies(block, search_request):
-    if x := (block is not None) and (("ничего не найдено" in block.text) or not (search_request in block.text)):
+    if x := (block is not None) and (("ничего не найдено" in block.text)):
         gui_app.destroy_waiting()
         gui_app.nothing_found_text()
         # deleting html files
@@ -116,7 +116,7 @@ def get_statistics():
             return
         last_page_num = 1
 
-    # hh.ru can correct our request, we are handling this case
+    # checking if there are any vacancies
     hint = check_vacancies(header, search_request)
     if hint:
         return
@@ -178,7 +178,7 @@ def get_statistics():
                 src = file.read()
 
             soup = BeautifulSoup(src, "lxml")
-            keywords = soup.findAll(class_=["bloko-tag__section", "bloko-tag__section_text"])
+            keywords = soup.findAll(attrs={"data-qa": "skills-element"})
             for keyword in keywords:
                 summary_push(keyword.text)
             # updating progress bar
